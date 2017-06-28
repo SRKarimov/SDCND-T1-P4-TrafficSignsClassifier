@@ -102,3 +102,4 @@ ENV/
 
 traffic-signs-data/
 *.zip
+.ipython_checkpoints
