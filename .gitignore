@@ -104,3 +104,4 @@ traffic-signs-data/
 *.zip
 .ipython_checkpoints
 checkpoint
+.DS_Store
