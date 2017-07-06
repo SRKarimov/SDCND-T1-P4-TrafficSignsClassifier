@@ -66,16 +66,18 @@
 
 Новый набор данных имеет равное количество дорожных знаков для всех классов и составляет 4020 картинок для каждого класса.
 
-####2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
+#### Финальный вариант архитектуры нейронной сети.
 
-My final model consisted of the following layers:
+Мой вариант нейронной сети содержит нижеследующие слои:
 
 | Layer         		|     Description	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| Input         		| 32x32x3 RGB image   							| 
-| Convolution 3x3     	| 1x1 stride, same padding, outputs 32x32x64 	|
-| RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 16x16x64 				|
+| Input         		| 32x32x1 GrayScale image                       |
+| Convolution 1x1   	| 1x1 stride, valid padding, outputs 32x32x3    |
+| Convolution 3x3       | 1x1 stride, valid padding, outputs 30x30x32   |
+| ReLU			        |												|
+| Max pooling           | 2x2 stride, 
+| Max pooling	      	| 2x2 stride, outputs 16x16x64 	  			    |
 | Convolution 3x3	    | etc.      									|
 | Fully connected		| etc.        									|
 | Softmax				| etc.        									|
