@@ -105,3 +105,4 @@ traffic-signs-data/
 .ipython_checkpoints
 checkpoint
 .DS_Store
+.idea/
