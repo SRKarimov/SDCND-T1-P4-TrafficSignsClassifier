@@ -1,175 +1,130 @@
-#**Traffic Sign Recognition** 
-
-##Writeup Template
-
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
-
-**Build a Traffic Sign Recognition Project**
-
-The goals / steps of this project are the following:
-* Load the data set (see below for links to the project data set)
-* Explore, summarize and visualize the data set
-* Design, train and test a model architecture
-* Use the model to make predictions on new images
-* Analyze the softmax probabilities of the new images
-* Summarize the results with a written report
-
-
 [//]: # (Image References)
 
-[image1]: ./examples/visualization.jpg "Visualization"
-[image2]: ./examples/grayscale.jpg "Grayscaling"
-[image3]: ./examples/random_noise.jpg "Random Noise"
-[image4]: ./my_images/1.png "Traffic Sign 1"
-[image5]: ./my_images/2.png "Traffic Sign 2"
-[image6]: ./my_images/3.png "Traffic Sign 3"
-[image7]: ./my_images/4.png "Traffic Sign 4"
-[image8]: ./my_images/5.png "Traffic Sign 5"
-[image9]: ./my_images/6.png "Traffic Sign 5"
-[image10]: ./my_images/7.png "Traffic Sign 5"
-[image11]: ./my_images/8.png "Traffic Sign 5"
+[image1]: ./my_images/bar_chart_before.png "Dataset before"
+[image2]: ./my_images/bar_chart_after.png "Dataset after"
+[image3]: ./my_images/affine_trans.png "affine transforma"
+[image4]: ./my_images/perspective_trans.png "perspective transform"
+[image5]: ./my_images/to_gray.png "to gray scale"
+[image6]: ./my_images/1.png "Traffic Sign 1"
+[image7]: ./my_images/2.png "Traffic Sign 2"
+[image8]: ./my_images/3.png "Traffic Sign 3"
+[image9]: ./my_images/4.png "Traffic Sign 4"
+[image10]: ./my_images/5.png "Traffic Sign 5"
+[image11]: ./my_images/6.png "Traffic Sign 6"
+[image12]: ./my_images/7.png "Traffic Sign 7"
+[image13]: ./my_images/8.png "Traffic Sign 8"
+[image001]: ./my_images/001.png
+[image002]: ./my_images/002.png
 
-## Rubric Points
-###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
-
----
-###Writeup / README
-
-####1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.
-
-You're reading it! and here is a link to my [project code](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb)
-### Introduction
-Данный проект выполнен в рамках Nano degree курса "Self driving car" на [Udacity](https://www.udacity.com/drive)
+### Введение
+Данный проект выполнен в рамках Nano degree программы "Self driving car" [Udacity](https://www.udacity.com/drive).
 Суть данного проекта: классификация дорожных знаков Германии.
 
-###Data Set Summary & Exploration
+### Немного о данных
 
-I used the pandas library to calculate summary statistics of the traffic
-signs data set:
+Набор данных представляет из себя базу дорожных знаков Германии. Саму базу можно скачать [сдесь](http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset).
+Я использовал Pandas и Numpy для получения статистики о данных: 
 
-* The size of training set is ?
-* The size of the validation set is ?
-* The size of test set is ?
-* The shape of a traffic sign image is ?
-* The number of unique classes/labels in the data set is ?
+* Количество тренировочных данных 34799 дорожных знаков
+* Количество данных, на которых проводилась валидация, 4410 дорожных знаков
+* Количество тестовых данных 12630 дорожных знаков
+* Каждый дорожный знак представляет из себя RGB картинку размером 32 x 32 x 3
+* Все дорожные знаки сгруппированы в 43 класса
 
-####2. Include an exploratory visualization of the dataset.
+#### Сводная информация о данных.
 
-Here is an exploratory visualization of the data set. It is a bar chart showing how the data ...
+На русунке ниже представлен BarChart показывающий распределение дорожных знаков в по классам.
 
 ![alt text][image1]
 
-###Design and Test a Model Architecture
+Можно видеть, что мы имеем дело с несбалансированным набором данных. Дисбаланс достигает 10 кратной разницы
+между минимум (180) и максимум (2010). Не сбалансированные данные - это беда нейронных сетей.
+Потому что, при малом количестве примеров сеть не может правильно обобщить, а вместо этого просто запомнит 
+запомнить предоставленные примеры. Поэтому, для начала, мы должны расширить наш набор данных для получения 
+более сбалансированного набора данных.
 
-####1. Describe how you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, and provide example images of the additional data. Then describe the characteristics of the augmented training set like number of images in the set, number of images for each class, etc.)
+### Разработка и тестирование модели
 
-As a first step, I decided to convert the images to grayscale because ...
+#### Предобработка данных
+Для получения данных с которыми может работать наша модель я сделал несколько действий.
+Во первых, все картинки были преобразованы к цветовой схеме градаций серого.
 
-Here is an example of a traffic sign image before and after grayscaling.
+![alt text][image5]
 
-![alt text][image2]
-
-As a last step, I normalized the image data because ...
-
-I decided to generate additional data because ... 
-
-To add more data to the the data set, I used the following techniques because ... 
-
-Here is an example of an original image and an augmented image:
+Во вторых, набор данных был расширин, добавлением в каждый класс новых, сгенерированные на основе существующих, картинок.
+Количество картинок подбиралось таким образом, что бы получить в результате сбалансированный набор данных.
+Для генерации использовались несколько техник:
+Первое - это афинное преобразование.
 
 ![alt text][image3]
 
-The difference between the original data set and the augmented data set is the following ... 
+Второе - это горизонтальная и вертикальная трансформация перспективы.
 
+![alt text][image4]
 
-####2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
+Как результат, после всех преобразований, был получен набор данных представленный на рисунке ниже.
 
-My final model consisted of the following layers:
+![alt text][image2]
+
+Новый набор данных имеет равное количество дорожных знаков для всех классов и составляет 4020 картинок для каждого класса.
+
+#### Финальный вариант архитектуры нейронной сети.
+
+Мой вариант нейронной сети содержит нижеследующие слои:
 
 | Layer         		|     Description	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| Input         		| 32x32x3 RGB image   							| 
-| Convolution 3x3     	| 1x1 stride, same padding, outputs 32x32x64 	|
-| RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 16x16x64 				|
-| Convolution 3x3	    | etc.      									|
-| Fully connected		| etc.        									|
-| Softmax				| etc.        									|
-|						|												|
-|						|												|
- 
+| Input         		| 32x32x1 GrayScale image                       |
+| Convolution 1x1   	| 1x1 stride, valid padding, outputs 32x32x3    |
+| Convolution 3x3       | 1x1 stride, valid padding, outputs 30x30x32   |
+| ReLU			        |												|
+| Convolution 3x3       | 1x1 stride, valid padding, outputs 28x28x64   |
+| ReLU                  |                                               |
+| Max pooling           | 2x2 stride, outputs 14x14x64                  |
+| Convalution 5x5       | 1x1 stride, valid padding, outputs 10x10x128  |
+| ReLU                  |                                               |
+| Max pooling	      	| 2x2 stride, outputs 5x5x128                   |
+| Fully connected       | outputs 3200                                  |
+| Fully connected       | outputs 1024                                  |
+| ReLU                  |                                               |
+| Fully connected       | outputs 120                                   |
+| ReLU                  |                                               |
+| Fully conneted        | outputs 84                                    |
+| ReLU                  |                                               |
+| Fully connected       | outputs 10        							|
 
+#### Обучение модели.
 
-####3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
+Для обучения модели я использовал следующие параметры:
+* learning rate: 0.001
+* Optimazer: Adam optimizer
+* Epochs = 10
+* Batch size = 128
 
-To train the model, I used an ....
+В итоге я получил следующие результаты:
+* validation test accuracy = 0.980
+* test set accuracy = 0.971
 
-####4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
+Для начала я пробовал LeNet-5 архитектуру по рекомендации Udacity, и после проведенных экспериментов я был удовлетворен результатом test set accuracy = 0.937, но хотел большего.
+Я стал экспериментировать с добавлением новых сверточных слоев, а так же играть количеством фильтров.
+В итоге я пришел к финальной архитектуре сети, котарая показала достаточно хорошие результаты. В целом я понимаю, что продолжая эксперименты можно добиться более высокого качества распознавания.
 
-My final model results were:
-* training set accuracy of ?
-* validation set accuracy of ? 
-* test set accuracy of ?
+### Тестирование модели на новых данных
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
+#### 8 дорожных знаков германии.
 
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
- 
+Ниже представлены 8 картинок дорожных знаков которые мне удалось найти в интернете:
 
-###Test a Model on New Images
+![alt text][image6] ![alt text][image7] ![alt text][image8] 
+![alt text][image9] ![alt text][image10] ![alt text][image11]
+![alt text][image12] ![alt text][image13]
 
-####1. Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
+#### Проблемы при распознавании новых примеров
 
-Here are five German traffic signs that I found on the web:
+Предварительно все картинки были сконвертированы в GrayScale цветовую гамму, как того требует модель.
+Как результат, для данной модели не составило труда распознать все 8 примеров.
 
-![alt text][image4] ![alt text][image5] ![alt text][image6] 
-![alt text][image7] ![alt text][image8]
-
-The first image might be difficult to classify because ...
-
-####2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
-
-Here are the results of the prediction:
-
-| Image			        |     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Stop Sign      		| Stop sign   									| 
-| U-turn     			| U-turn 										|
-| Yield					| Yield											|
-| 100 km/h	      		| Bumpy Road					 				|
-| Slippery Road			| Slippery Road      							|
-
-
-The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
-
-####3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
-
-The code for making predictions on my final model is located in the 11th cell of the Ipython notebook.
-
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
-
-| Probability         	|     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
-
-
-For the second image ... 
-
-### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
-####1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
-
+Результаты представлены ниже.
+![alt text][image001]
+![alt text][image002]
 
